@@ -46,19 +46,20 @@ class RegisterController extends AbstractController
             );
             
             }
-            // Vérifier que tous les champs nécessaires sont tous  présents
+             // Vérifier que tous les champs nécessaires sont présents
         if (!$email || !$password || !$firstName) {
             return new JsonResponse(['message' => 'Email firstname and  password are required'], Response::HTTP_BAD_REQUEST);
         }
-        // Créer un nouvel utilisateur
+
         $user = new user();
         $user->setEmail($email);
         $user->setFirstName($firstName);
         $hashedPassword = $passwordHasher->hashPassword($user , $password);
         $user->setPassword($hashedPassword);
 
-        $entityManager->persist($user);// Persister l'utilisateur dans la base de données
-        $entityManager->flush(); // Enregistrer les modifications
+        $entityManager->persist($user);
+        $entityManager->flush();
+
         return new JsonResponse(['message' => 'Utilisateur  enregistrer avec  succes'], Response::HTTP_CREATED);
     }
 
