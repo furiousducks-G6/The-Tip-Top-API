@@ -46,7 +46,7 @@ class RegisterController extends AbstractController
             );
             
             }
-            // Vérifier que tous les champs nécessaires sont présents
+            // Vérifier que tous les champs nécessaires sont tous  présents
         if (!$email || !$password || !$firstName) {
             return new JsonResponse(['message' => 'Email firstname and  password are required'], Response::HTTP_BAD_REQUEST);
         }
