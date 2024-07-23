@@ -30,7 +30,6 @@ class RegisterController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        // Extraire les champs requis du JSON
         $email = $data['email'];
         $password = $data['password'];
         $firstName=$data['firstName'];
@@ -46,7 +45,6 @@ class RegisterController extends AbstractController
             );
             
             }
-             // Vérifier que tous les champs nécessaires sont présents
         if (!$email || !$password || !$firstName) {
             return new JsonResponse(['message' => 'Email firstname and  password are required'], Response::HTTP_BAD_REQUEST);
         }

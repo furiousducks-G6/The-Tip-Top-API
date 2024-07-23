@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Tickets{% endblock %}
+
+{% block body %}
+<h1>Liste des Tickets</h1>
+
+<h2>Décompte des Lots</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Lot</th>
+            <th>Nombre de Tickets</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lotName, count in lotCounts %}
+            <tr>
+                <td>{{ lotName }}</td>
+                <td>{{ count }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Tickets par Lot</h2>
+{% for lotName, tickets in lotTickets %}
+    <h3>{{ lotName }} ({{ tickets|length }})</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Code du Ticket</th>
+                <th>Réclamé</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.getCode() }}</td>
+                    <td>{{ ticket.isClaimed() ? 'Oui' : 'Non' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endfor %}
+{% endblock %}

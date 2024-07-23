@@ -28,6 +28,9 @@ class Lot
     #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'lot')]
     private Collection $tickets;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $Pourcentage = null;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -88,6 +91,18 @@ class Lot
                 $ticket->setLot(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPourcentage(): ?int
+    {
+        return $this->Pourcentage;
+    }
+
+    public function setPourcentage(?int $Pourcentage): static
+    {
+        $this->Pourcentage = $Pourcentage;
 
         return $this;
     }
