@@ -23,6 +23,9 @@ class Ticket
     #[ORM\JoinColumn(nullable: false)]
     private ?Lot $lot = null;
 
+    #[ORM\ManyToOne(inversedBy: 'tikets')]
+    private ?User $user = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +63,18 @@ class Ticket
     public function setLot(?Lot $lot): static
     {
         $this->lot = $lot;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

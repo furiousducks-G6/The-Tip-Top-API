@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserRepository;
@@ -35,9 +37,16 @@ class User implements UserInterface,PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
+    /**
+     * @var Collection<int, Ticket>
+     */
+    #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'user')]
+    private Collection $tikets;
+
         public function __construct() {
             $this->createdAt = new \DateTimeImmutable();
             $this->roles[]="user";
+            $this->tikets = new ArrayCollection();
         }
     public function getId(): ?int
     {
@@ -129,6 +138,36 @@ class User implements UserInterface,PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return $this->Email;
+    }
+
+    /**
+     * @return Collection<int, Ticket>
+     */
+    public function getTikets(): Collection
+    {
+        return $this->tikets;
+    }
+
+    public function addTiket(Ticket $tiket): static
+    {
+        if (!$this->tikets->contains($tiket)) {
+            $this->tikets->add($tiket);
+            $tiket->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTiket(Ticket $tiket): static
+    {
+        if ($this->tikets->removeElement($tiket)) {
+            // set the owning side to null (unless already changed)
+            if ($tiket->getUser() === $this) {
+                $tiket->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
     
