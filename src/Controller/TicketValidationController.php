@@ -18,7 +18,7 @@ class TicketValidationController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('/ticket/validation', name: 'app_ticket_validation')]
+    #[Route('Api/ticket/validation', name: 'app_ticket_validation')]
     public function validateTicket(Request $request, TicketRepository $ticketRepository): JsonResponse
     {
         $code = $request->request->get('code');

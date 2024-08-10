@@ -8,11 +8,11 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-
+use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource]
-class User implements UserInterface,PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface /*, /*TwoFactorInterface*/
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -30,6 +30,8 @@ class User implements UserInterface,PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $Password = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $googleAuthenticatorSecret;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -42,6 +44,12 @@ class User implements UserInterface,PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'user')]
     private Collection $tikets;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $google_id = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $name = null;
 
         public function __construct() {
             $this->createdAt = new \DateTimeImmutable();
@@ -170,5 +178,29 @@ class User implements UserInterface,PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    
+    public function getGoogleId(): ?string
+    {
+        return $this->google_id;
+    }
+
+    public function setGoogleId(?string $google_id): static
+    {
+        $this->google_id = $google_id;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+        
 }

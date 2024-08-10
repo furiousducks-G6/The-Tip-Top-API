@@ -33,6 +33,7 @@ class RegisterController extends AbstractController
         $email = $data['email'];
         $password = $data['password'];
         $firstName=$data['firstName'];
+        $name=$data['name'];
         $user = new User();
 
         $email_exist= $this->userRepository->findOneBy(['Email' => $email]);
@@ -52,6 +53,7 @@ class RegisterController extends AbstractController
         $user = new user();
         $user->setEmail($email);
         $user->setFirstName($firstName);
+        $user->setFirstName($name);
         $hashedPassword = $passwordHasher->hashPassword($user , $password);
         $user->setPassword($hashedPassword);
 
