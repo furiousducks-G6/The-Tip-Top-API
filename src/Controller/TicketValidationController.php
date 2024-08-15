@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\TicketRepository;
+use DateTimeZone;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\ORM\EntityManagerInterface;
 class TicketValidationController extends AbstractController
-{
+{/*
     private $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -18,10 +19,12 @@ class TicketValidationController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('Api/ticket/validation', name: 'app_ticket_validation')]
+    #[Route('api/ticket/validation', name: 'app_ticket_validation')]
     public function validateTicket(Request $request, TicketRepository $ticketRepository): JsonResponse
     {
         $code = $request->request->get('code');
+
+
 
         if (!$code) {
             return new JsonResponse(['message' => 'Code is required'], 400);
@@ -48,5 +51,5 @@ class TicketValidationController extends AbstractController
             'prize' => $ticket->getLot()->getName(),
             'value' => $ticket->getLot()->getValue(),
         ]);
-    }
+    }*/
 }

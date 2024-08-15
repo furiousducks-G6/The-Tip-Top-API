@@ -4,65 +4,86 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Symfony\Component\PasswordHasher\Hasher\PasswordHasherAwareInterface ;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class RegisterController extends AbstractController
-{ 
-    
-    // Constructeur pour initialiser les services nécessaires
-    public function __construct(private EntityManagerInterface $manager, private UserRepository $userRepository )
-    {
-    
+{
+    private UserPasswordHasherInterface $passwordHasher;
+    private UserRepository $userRepository;
+    private EntityManagerInterface $entityManager;
+    private UserProviderInterface $userProvider;
+
+    public function __construct(
+        UserPasswordHasherInterface $passwordHasher,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+        UserProviderInterface $userProvider
+    ) {
+        $this->passwordHasher = $passwordHasher;
+        $this->userRepository = $userRepository;
+        $this->entityManager = $entityManager;
+        $this->userProvider = $userProvider;
     }
-    /*Cette méthode gère l'enregistrement des nouveaux utilisateurs.
-     * Elle vérifie si l'email existe déjà, valide les données et crée un nouvel utilisateur.*/
+
     #[Route('/api/register', name: 'register', methods: ['POST'])]
-    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    public function register(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
 
-        $email = $data['email'];
-        $password = $data['password'];
-        $firstName=$data['firstName'];
-        $name=$data['name'];
-        $user = new User();
+        $email = $data['email'] ?? '';
+        $password = $data['password'] ?? '';
+        $firstName = $data['firstName'] ?? '';
+        $name = $data['name'] ?? '';
 
-        $email_exist= $this->userRepository->findOneBy(['Email' => $email]);
-
-        if($email_exist)
-        {   
-            return new JsonResponse(
-                ['message' => 'Cet  utilisaeur  existe deja, Voulez vous vous connecter ?'],
-                Response::HTTP_BAD_REQUEST
-            );
-            
-            }
         if (!$email || !$password || !$firstName) {
-            return new JsonResponse(['message' => 'Email firstname and  password are required'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(['message' => 'Email, first name, and password are required'], Response::HTTP_BAD_REQUEST);
         }
 
-        $user = new user();
+        if ($this->userRepository->findOneBy(['email' => $email])) {
+            return new JsonResponse(['message' => 'User already exists. Would you like to log in?'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user = new User();
         $user->setEmail($email);
         $user->setFirstName($firstName);
-        $user->setFirstName($name);
-        $hashedPassword = $passwordHasher->hashPassword($user , $password);
+        $user->setName($name);
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $password);
         $user->setPassword($hashedPassword);
 
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
-        return new JsonResponse(['message' => 'Utilisateur  enregistrer avec  succes'], Response::HTTP_CREATED);
+        return new JsonResponse(['message' => 'User successfully registered'], Response::HTTP_CREATED);
     }
 
-  
+    #[Route('/api/login', name: 'login', methods: ['POST'])]
+    public function login(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
 
+        $email = $data['email'] ?? '';
+        $password = $data['password'] ?? '';
+
+        if (!$email || !$password) {
+            return new JsonResponse(['message' => 'Email and password are required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if (!$user || !$this->passwordHasher->isPasswordValid($user, $password)) {
+            return new JsonResponse(['message' => 'Invalid email or password'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // Generate JWT or session token here
+        // For simplicity, we'll just return a success message
+        return new JsonResponse(['message' => 'Login successful'], Response::HTTP_OK);
+    }
 }
+

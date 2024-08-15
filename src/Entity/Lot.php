@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: LotRepository::class)]
-#[ApiResource]
+#[ApiResource ]
 class Lot   
 {
     #[ORM\Id]
