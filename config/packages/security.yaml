@@ -35,11 +35,11 @@ security:
         # - { path: ^/api/users, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/api, roles: IS_AUTHENTICATED_FULLY } 
         # Routes pour lesquelles aucun authentification n'est nécessaire
-        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY } 
-       # - { path: ^/admin, roles: ROLE_ADMIN }
+        #- { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        #- { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY } 
+        - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/caissier, roles: ROLE_CAISSIER }
-        - { path: ^/api/tickets, roles: ROLE_ADMIN }
+        - { path: ^/api/tickets, roles: ROLE_USER }
       #  - { path: ^/api, roles: ROLE_USER }
         # - { path: ^/api, roles: ROLE_USER }
         - { path: ^/api/user/lot, roles: ROLE_USER }
