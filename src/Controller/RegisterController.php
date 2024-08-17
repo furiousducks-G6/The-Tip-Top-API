@@ -21,10 +21,11 @@ class RegisterController extends AbstractController
 { 
     
     // Constructeur pour initialiser les services nécessaires
-    public function __construct(private EntityManagerInterface $manager, private UserRepository $userRepository ,private TokenStorageInterface $tokenStorage)
+    public function __construct(private EntityManagerInterface $manager, private UserRepository $userRepository ,private TokenStorageInterface $tokenStorage , private  EntityManagerInterface $entityManager)
     {
     
     }
+    
     /*Cette méthode gère l'enregistrement des nouveaux utilisateurs.
      * Elle vérifie si l'email existe déjà, valide les données et crée un nouvel utilisateur.*/
     #[Route('/api/register', name: 'register', methods: ['POST'])]
@@ -82,12 +83,50 @@ public function getMe(): Response
         'firstName' => $user->getFirstName(),
         'name' => $user->getName(),
         'roles' => $user->getRoles(),
-        'phone'=>$user->getPhone()
+        'phone'=>$user->getPhone(),
+        'id'=>$user->getId(),
         
     ];
 
     return new JsonResponse($userData);
 }
     
+   #[Route('/api/user/update', name: 'api_user_update', methods: ['PUT'])]
+    public function update(Request $request): Response
+    {
+        $token = $this->tokenStorage->getToken();
+
+        if (!$token || !$user = $token->getUser()) {
+            throw new AccessDeniedException('Unauthorized');
+        }
+
+        if (!$user instanceof User) {
+            throw new AccessDeniedException('Unauthorized');
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['firstName'])) {
+            $user->setFirstName($data['firstName']);
+        }
+
+        if (isset($data['name'])) {
+            $user->setName($data['name']);
+        }
+
+        if (isset($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+        
+        if (isset($data['phone'])) {
+            $user->setPhone($data['phone']);
+        }
+        // Ajoutez ici d'autres champs que vous souhaitez mettre à jour
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'User updated successfully'], Response::HTTP_OK);
+    }
 
 }
