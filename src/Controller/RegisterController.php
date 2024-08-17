@@ -13,13 +13,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 
 class RegisterController extends AbstractController
 { 
     
     // Constructeur pour initialiser les services nécessaires
-    public function __construct(private EntityManagerInterface $manager, private UserRepository $userRepository )
+    public function __construct(private EntityManagerInterface $manager, private UserRepository $userRepository ,private TokenStorageInterface $tokenStorage)
     {
     
     }
@@ -62,6 +64,30 @@ class RegisterController extends AbstractController
         return new JsonResponse(['message' => 'Utilisateur  enregistrer avec  succes'], Response::HTTP_CREATED);
     }
 
+#[Route('/api/me', name: 'api_me', methods: ['GET'])]
+public function getMe(): Response
+{
+    $token = $this->tokenStorage->getToken();
+
+    if (!$token || !$user = $token->getUser()) {
+        throw new AccessDeniedException('Unauthorized');
+    }
+
+    if (!$user instanceof User) {
+        throw new AccessDeniedException('Unauthorized');
+    }
+
+    $userData = [
+        'email' => $user->getUserIdentifier(),
+        'firstName' => $user->getFirstName(),
+        'name' => $user->getName(),
+        'roles' => $user->getRoles(),
+        'phone'=>$user->getPhone()
+        
+    ];
+
+    return new JsonResponse($userData);
+}
     
 
 }
