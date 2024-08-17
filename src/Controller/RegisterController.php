@@ -84,7 +84,11 @@ public function getMe(): Response
         'name' => $user->getName(),
         'roles' => $user->getRoles(),
         'phone'=>$user->getPhone(),
+<<<<<<< HEAD
         'id'=>$user->getId(),
+=======
+         'id'=>$user->getId()
+>>>>>>> 82b48f0 (mise à jour des controlleur et du .env)
         
     ];
 
