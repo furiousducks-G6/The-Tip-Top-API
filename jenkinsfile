@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Étape pour récupérer le code depuis votre repository Git (par exemple GitHub)
+                // Étape pour récupérer le code depuis votre repository Git (par exemple GitHub )
                 git 'https://github.com/furiousducks-G6/The-Tip-Top-API.git'
             }
         }
