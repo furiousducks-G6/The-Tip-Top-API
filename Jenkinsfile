@@ -6,8 +6,7 @@ pipeline {
         DOCKER_IMAGE = 'php:8.2-cli'
     }
 
-    
-
+    stages {
         stage('Run Tests') {
             steps {
                 sh "${env.PATH_TO_SYMFONY} phpunit"
