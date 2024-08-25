@@ -6,19 +6,7 @@ pipeline {
         DOCKER_IMAGE = 'php:8.2-cli'
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/furiousducks-G6/The-Tip-Top-API.git'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'composer install --no-interaction --prefer-dist'
-                sh "${env.PATH_TO_SYMFONY} doctrine:migrations:migrate --no-interaction"
-            }
-        }
+    
 
         stage('Run Tests') {
             steps {
