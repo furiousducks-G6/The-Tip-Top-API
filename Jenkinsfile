@@ -15,9 +15,15 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh "${env.PATH_TO_SYMFONY} phpunit"
+                script {
+                    // Exécute les tests dans un conteneur Docker
+                    docker.image(env.DOCKER_IMAGE).inside {
+                        sh 'composer install' // Installe les dépendances PHP, si nécessaire
+                        sh 'vendor/bin/phpunit'
+                    }
             }
         }
+
 
         stage('Deploy to Dev') {
             when {
