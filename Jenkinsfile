@@ -7,15 +7,24 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 sh "${env.PATH_TO_SYMFONY} phpunit"
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Dev') {
+            when {
+                branch 'develop'
+            }
             steps {
-                sh "docker run --rm -v \$(pwd):/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy"
+                sh "docker run --rm -v \$(pwd):/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy:dev"
             }
         }
     }
@@ -26,7 +35,7 @@ pipeline {
             emailext (
                 subject: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n\n${env.BUILD_URL}",
-                to: "tchantchoisaac1997@gmail.com"
+                to: "Tcahantchoisaac1998"
             )
         }
     }
