@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\ORM\EntityManagerInterface;
 class TicketValidationController extends AbstractController
-{/*
+{
     private $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -51,5 +51,5 @@ class TicketValidationController extends AbstractController
             'prize' => $ticket->getLot()->getName(),
             'value' => $ticket->getLot()->getValue(),
         ]);
-    }*/
+    }
 }

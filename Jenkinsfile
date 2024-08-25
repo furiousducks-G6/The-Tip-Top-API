@@ -2,40 +2,32 @@ pipeline {
     agent any
 
     environment {
-        // Définir les variables d'environnement nécessaires pour votre pipeline
         PATH_TO_SYMFONY = './bin/console'
-        DOCKER_IMAGE = 'php:8.2-cli'  // Version Docker de PHP adaptée à Symfony
+        DOCKER_IMAGE = 'php:8.2-cli'
     }
 
     stages {
-        stage('  Checkout') {
+        stage('Checkout') {
             steps {
-                // Étape pour récupérer le code depuis votre repository Git (par exemple GitHub)
                 git 'https://github.com/furiousducks-G6/The-Tip-Top-API.git'
             }
         }
 
         stage('Build') {
             steps {
-                // Étape pour installer les dépendances Symfony et API Platform
                 sh 'composer install --no-interaction --prefer-dist'
-
-                // Exécuter les migrations de base de données si nécessaire
                 sh "${env.PATH_TO_SYMFONY} doctrine:migrations:migrate --no-interaction"
             }
         }
 
         stage('Run Tests') {
             steps {
-                // Exécuter les tests unitaires Symfony
                 sh "${env.PATH_TO_SYMFONY} phpunit"
             }
         }
 
         stage('Deploy') {
             steps {
-                // Exemple de déploiement vers un serveur distant (adapter selon votre configuration)
-                // Utilisation d'un conteneur Docker pour l'environnement de déploiement
                 sh "docker run --rm -v \$(pwd):/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy"
             }
         }
@@ -43,10 +35,7 @@ pipeline {
 
     post {
         always {
-            // Exécuté à la fin de chaque pipeline, quelle que soit l'issue
             archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-
-            // Notification par email en cas d'échec du pipeline
             emailext (
                 subject: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n\n${env.BUILD_URL}",
