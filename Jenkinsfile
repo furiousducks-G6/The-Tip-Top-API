@@ -18,25 +18,29 @@ pipeline {
                 script {
                     // Exécute les tests dans un conteneur Docker
                     docker.image(env.DOCKER_IMAGE).inside {
-                        sh 'composer install' // Installe les dépendances PHP, si nécessaire
-                        sh 'vendor/bin/phpunit'
+                        sh 'composer install' // Installe les dépendances PHP
+                        sh 'vendor/bin/phpunit' // Exécute les tests PHPUnit
                     }
+                }
             }
         }
-
 
         stage('Deploy to Dev') {
             when {
                 branch 'develop'
             }
             steps {
-                sh "docker run --rm -v \$(pwd):/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy:dev"
+                script {
+                    // Déploie en utilisant Docker
+                    sh "docker run --rm -v \$(pwd):/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy:dev"
+                }
             }
         }
     }
 
     post {
         always {
+            // Archive les fichiers générés, ajustez les patterns selon vos besoins
             archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
             emailext (
                 subject: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
