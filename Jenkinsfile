@@ -19,12 +19,13 @@ pipeline {
                     // Installer Composer si nécessaire et installer les dépendances
                     docker.image(DOCKER_IMAGE).inside {
                         sh '''
-                            # Vérifier si Composer est installé, sinon l'installer
+                            # Vérifier si Composer est installé, sinon l'installer dans /tmp
                             if ! [ -x "$(command -v composer)" ]; then
-                              curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+                              curl -sS https://getcomposer.org/installer | php -- --install-dir=/tmp --filename=composer
+                              export PATH=$PATH:/tmp
                             fi
                             # Installer les dépendances Composer
-                            composer install
+                            /tmp/composer install
                         '''
                     }
                 }
@@ -36,7 +37,7 @@ pipeline {
                 script {
                     // Exécuter les tests PHPUnit
                     docker.image(DOCKER_IMAGE).inside {
-                        sh 'php bin/phpunit'
+                        sh '/tmp/composer exec phpunit'
                     }
                 }
             }
