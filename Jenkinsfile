@@ -16,13 +16,13 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Installer Composer si nécessaire et installer les dépendances
+                    // Installer Composer et les outils nécessaires pour les dépendances
                     docker.image(DOCKER_IMAGE).inside {
                         sh '''
-                            # Définir le répertoire COMPOSER_HOME dans un répertoire avec des permissions d'écriture
-                            export COMPOSER_HOME=/tmp/composer_home
+                            # Installer les outils nécessaires
+                            apt-get update && apt-get install -y unzip git
 
-                            # Vérifier si Composer est installé, sinon l'installer dans /tmp
+                            # Installer Composer dans /tmp si nécessaire
                             if ! [ -x "$(command -v composer)" ]; then
                               curl -sS https://getcomposer.org/installer | php -- --install-dir=/tmp --filename=composer
                               export PATH=$PATH:/tmp
@@ -73,3 +73,4 @@ pipeline {
         }
     }
 }
+
