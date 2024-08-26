@@ -21,6 +21,8 @@ pipeline {
                         echo "PHP not found. Installing..."
                         sudo apt-get update
                         sudo apt-get install -y php php-cli
+                    else
+                        echo "PHP is already installed."
                     fi
                     '''
 
@@ -30,6 +32,8 @@ pipeline {
                         echo "Composer not found. Installing..."
                         curl -sS https://getcomposer.org/installer | php
                         sudo mv composer.phar /usr/local/bin/composer
+                    else
+                        echo "Composer is already installed."
                     fi
                     '''
                 }
