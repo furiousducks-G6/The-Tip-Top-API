@@ -12,9 +12,18 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install PHP and Composer') {
             steps {
                 script {
+                    // Installer PHP si ce n'est pas déjà fait
+                    sh '''
+                    if ! command -v php &> /dev/null; then
+                        echo "PHP not found. Installing..."
+                        sudo apt-get update
+                        sudo apt-get install -y php php-cli
+                    fi
+                    '''
+
                     // Installer Composer s'il n'est pas déjà installé
                     sh '''
                     if ! command -v composer &> /dev/null; then
@@ -23,7 +32,13 @@ pipeline {
                         sudo mv composer.phar /usr/local/bin/composer
                     fi
                     '''
+                }
+            }
+        }
 
+        stage('Install Dependencies') {
+            steps {
+                script {
                     // Installer les dépendances PHP
                     sh 'composer install'
                 }
@@ -64,3 +79,4 @@ pipeline {
         }
     }
 }
+
