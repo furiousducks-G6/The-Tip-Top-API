@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        PATH_TO_SYMFONY = './bin/console'
         DOCKER_IMAGE = 'php:8.2-cli'
+        WORKDIR = '/app'
     }
 
     stages {
@@ -13,9 +13,25 @@ pipeline {
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    // Installer les dépendances Composer dans un conteneur Docker
+                    docker.image(DOCKER_IMAGE).inside {
+                        sh 'composer install'
+                    }
+                }
+            }
+        }
+
         stage('Run Tests') {
             steps {
-                sh 'php vendor/bin/phpunit'
+                script {
+                    // Exécuter les tests PHPUnit dans un conteneur Docker
+                    docker.image(DOCKER_IMAGE).inside {
+                        sh 'php bin/phpunit'
+                    }
+                }
             }
         }
 
@@ -24,7 +40,12 @@ pipeline {
                 branch 'develop'
             }
             steps {
-                sh "docker run --rm -v \$(pwd):/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy:dev"
+                script {
+                    // Déploiement avec Docker, utilisez la commande appropriée pour votre projet Symfony
+                    docker.image(DOCKER_IMAGE).inside {
+                        sh 'php bin/console deploy:dev'
+                    }
+                }
             }
         }
     }
