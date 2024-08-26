@@ -16,16 +16,20 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Installer Composer et les outils nécessaires pour les dépendances
                     docker.image(DOCKER_IMAGE).inside {
                         sh '''
-                            # Installer les outils nécessaires
+                            # Assurez-vous que les répertoires ont les bonnes permissions
+                            mkdir -p /var/lib/apt/lists/partial
+                            chmod 755 /var/lib/apt/lists
+                            chmod 755 /var/lib/apt/lists/partial
+
+                            # Mettre à jour les packages et installer les outils nécessaires
                             apt-get update && apt-get install -y unzip git
 
                             # Installer Composer dans /tmp si nécessaire
                             if ! [ -x "$(command -v composer)" ]; then
-                              curl -sS https://getcomposer.org/installer | php -- --install-dir=/tmp --filename=composer
-                              export PATH=$PATH:/tmp
+                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/tmp --filename=composer
+                                export PATH=$PATH:/tmp
                             fi
 
                             # Installer les dépendances Composer
