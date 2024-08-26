@@ -15,7 +15,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh "${env.PATH_TO_SYMFONY} phpunit"
+                sh 'php vendor/bin/phpunit'
             }
         }
 
