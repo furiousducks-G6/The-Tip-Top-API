@@ -7,6 +7,42 @@ pipeline {
     }
 
     stages {
+        stage('Install Docker') {
+            steps {
+                script {
+                    // Installe Docker
+                    sh '''
+                    #!/bin/bash
+
+                    # Mettre à jour les index des packages
+                    sudo apt-get update
+
+                    # Installer les prérequis
+                    sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+
+                    # Ajouter la clé GPG officielle de Docker
+                    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+                    # Ajouter le dépôt Docker
+                    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+                    # Mettre à jour les index des packages à nouveau
+                    sudo apt-get update
+
+                    # Installer Docker CE
+                    sudo apt-get install -y docker-ce
+
+                    # Démarrer et activer le service Docker
+                    sudo systemctl start docker
+                    sudo systemctl enable docker
+
+                    # Vérifier l'installation
+                    sudo docker --version
+                    '''
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
