@@ -16,9 +16,16 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Installer les dépendances Composer dans un conteneur Docker
+                    // Installer Composer si nécessaire et installer les dépendances
                     docker.image(DOCKER_IMAGE).inside {
-                        sh 'composer install'
+                        sh '''
+                            # Vérifier si Composer est installé, sinon l'installer
+                            if ! [ -x "$(command -v composer)" ]; then
+                              curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+                            fi
+                            # Installer les dépendances Composer
+                            composer install
+                        '''
                     }
                 }
             }
@@ -27,7 +34,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Exécuter les tests PHPUnit dans un conteneur Docker
+                    // Exécuter les tests PHPUnit
                     docker.image(DOCKER_IMAGE).inside {
                         sh 'php bin/phpunit'
                     }
@@ -41,7 +48,7 @@ pipeline {
             }
             steps {
                 script {
-                    // Déploiement avec Docker, utilisez la commande appropriée pour votre projet Symfony
+                    // Déploiement avec Symfony console
                     docker.image(DOCKER_IMAGE).inside {
                         sh 'php bin/console deploy:dev'
                     }
@@ -51,7 +58,6 @@ pipeline {
     }
 
     post {
-    
         always {
             archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
             emailext (
