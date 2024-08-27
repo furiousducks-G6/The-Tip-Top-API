@@ -32,7 +32,7 @@ pipeline {
                             fi
 
                             # Vérifiez que Composer est bien installé
-                            composer --version
+                            /usr/local/bin/composer --version
                         '''
                     }
                 }
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 script {
                     docker.image(DOCKER_IMAGE).inside {
-                        sh 'composer exec phpunit'
+                        sh '/usr/local/bin/composer exec phpunit'
                     }
                 }
             }
@@ -74,4 +74,3 @@ pipeline {
         }
     }
 }
-
