@@ -26,13 +26,13 @@ pipeline {
                             # Mettre à jour les packages et installer les outils nécessaires
                             apt-get update && apt-get install -y unzip git
 
-                            # Installer Composer globalement si nécessaire
+                            # Installer Composer dans /tmp si nécessaire
                             if ! [ -x "$(command -v composer)" ]; then
-                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/tmp --filename=composer
                             fi
 
                             # Vérifiez que Composer est bien installé
-                            /usr/local/bin/composer --version
+                            /tmp/composer --version
                         '''
                     }
                 }
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 script {
                     docker.image(DOCKER_IMAGE).inside {
-                        sh '/usr/local/bin/composer exec phpunit'
+                        sh '/tmp/composer exec phpunit'
                     }
                 }
             }
@@ -69,8 +69,9 @@ pipeline {
             emailext (
                 subject: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n\n${env.BUILD_URL}",
-                to: "tchantchoisaac1997@gmail.com"
+                to: "tchantchoisaac1998@gmail.com"
             )
         }
     }
 }
+
