@@ -16,7 +16,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    docker.image(DOCKER_IMAGE).inside {
+                    docker.image(DOCKER_IMAGE).inside('--user root') { // Ajout de --user root pour les permissions
                         sh '''
                             # Assurez-vous que les répertoires ont les bonnes permissions
                             mkdir -p /var/lib/apt/lists/partial
