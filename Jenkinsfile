@@ -18,24 +18,19 @@ pipeline {
                 script {
                     docker.image(DOCKER_IMAGE).inside('--user root') {
                         sh '''
-                            # Assurez-vous que les répertoires ont les bonnes permissions
-                            mkdir -p /var/lib/apt/lists/partial
-                            chmod 755 /var/lib/apt/lists
-                            chmod 755 /var/lib/apt/lists/partial
-
                             # Mettre à jour les packages et installer les outils nécessaires
-                            apt-get update && apt-get install -y unzip git
+                            apt-get update && apt-get install -y unzip git curl
 
                             # Installer Composer dans /usr/local/bin si nécessaire
-                            if ! [ -x "$(command -v composer)" ]; then
+                            if ! [ -x "/usr/local/bin/composer" ]; then
                                 curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
                             fi
 
                             # Vérification de l'installation de Composer
-                            composer --version
+                            /usr/local/bin/composer --version
 
                             # Installer les dépendances Composer
-                            composer install
+                            /usr/local/bin/composer install
                         '''
                     }
                 }
@@ -45,8 +40,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    docker.image(DOCKER_IMAGE).inside {
-                        sh 'composer exec phpunit'
+                    docker.image(DOCKER_IMAGE).inside('--user root') {
+                        sh '/usr/local/bin/composer exec phpunit'
                     }
                 }
             }
