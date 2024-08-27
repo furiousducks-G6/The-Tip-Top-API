@@ -26,13 +26,16 @@ pipeline {
                             # Mettre à jour les packages et installer les outils nécessaires
                             apt-get update && apt-get install -y unzip git
 
-                            # Installer Composer dans /tmp si nécessaire
+                            # Installer Composer dans /usr/local/bin si nécessaire
                             if ! [ -x "$(command -v composer)" ]; then
-                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/tmp --filename=composer
+                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
                             fi
 
-                            # Vérifiez que Composer est bien installé
-                            /tmp/composer --version
+                            # Vérification de l'installation de Composer
+                            composer --version
+
+                            # Installer les dépendances Composer
+                            composer install
                         '''
                     }
                 }
@@ -43,24 +46,13 @@ pipeline {
             steps {
                 script {
                     docker.image(DOCKER_IMAGE).inside {
-                        sh '/tmp/composer exec phpunit'
+                        sh 'composer exec phpunit'
                     }
                 }
             }
         }
 
-        stage('Deploy to Dev') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                script {
-                    docker.image(DOCKER_IMAGE).inside {
-                        sh 'php bin/console deploy:dev'
-                    }
-                }
-            }
-        }
+        // Autres étapes ici
     }
 
     post {
@@ -74,4 +66,3 @@ pipeline {
         }
     }
 }
-
