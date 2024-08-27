@@ -16,7 +16,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    docker.image(DOCKER_IMAGE).inside('--user root') { // Ajout de --user root pour les permissions
+                    docker.image(DOCKER_IMAGE).inside('--user root') {
                         sh '''
                             # Assurez-vous que les répertoires ont les bonnes permissions
                             mkdir -p /var/lib/apt/lists/partial
@@ -26,14 +26,13 @@ pipeline {
                             # Mettre à jour les packages et installer les outils nécessaires
                             apt-get update && apt-get install -y unzip git
 
-                            # Installer Composer dans /tmp si nécessaire
+                            # Installer Composer globalement si nécessaire
                             if ! [ -x "$(command -v composer)" ]; then
-                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/tmp --filename=composer
-                                export PATH=$PATH:/tmp
+                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
                             fi
 
-                            # Installer les dépendances Composer
-                            /tmp/composer install
+                            # Vérifiez que Composer est bien installé
+                            composer --version
                         '''
                     }
                 }
@@ -43,9 +42,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Exécuter les tests PHPUnit
                     docker.image(DOCKER_IMAGE).inside {
-                        sh '/tmp/composer exec phpunit'
+                        sh 'composer exec phpunit'
                     }
                 }
             }
@@ -57,7 +55,6 @@ pipeline {
             }
             steps {
                 script {
-                    // Déploiement avec Symfony console
                     docker.image(DOCKER_IMAGE).inside {
                         sh 'php bin/console deploy:dev'
                     }
@@ -77,3 +74,4 @@ pipeline {
         }
     }
 }
+
