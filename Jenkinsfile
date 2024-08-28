@@ -6,7 +6,6 @@ pipeline {
         WORKDIR = '/app'
         SLACK_CHANNEL = '#general' // Remplacez par le canal Slack souhaité
         SLACK_CREDENTIALS_ID = 'slacknotification' // ID de vos informations d'identification Slack configurées dans Jenkins
-
     }
 
     stages {
@@ -16,7 +15,6 @@ pipeline {
             }
         }
 
-        // Optionnel : Installation des dépendances
         stage('Install Dependencies') {
             steps {
                 script {
@@ -62,6 +60,7 @@ pipeline {
                 subject: "Build Success: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
                 body: "The build was successful.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}"
             )
+            slackSend(channel: SLACK_CHANNEL, message: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
         }
         failure {
             emailext (
@@ -69,6 +68,7 @@ pipeline {
                 subject: "Build Failure: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
                 body: "The build failed.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}"
             )
+            slackSend(channel: SLACK_CHANNEL, message: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
         }
         unstable {
             emailext (
@@ -76,27 +76,14 @@ pipeline {
                 subject: "Build Unstable: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
                 body: "The build is unstable.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}"
             )
-        }
-        always {
-            emailext (
-                to: 'tchantchoisaac1997@gmail.com',
-                subject: "Pipeline Finished: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                body: "Pipeline finished.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}\nResult: ${currentBuild.result}"
-            )
-        }
-    }
-
-    post {
-        success {
-            slackSend(channel: SLACK_CHANNEL, message: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
-        }
-        failure {
-            slackSend(channel: SLACK_CHANNEL, message: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
-        }
-        unstable {
             slackSend(channel: SLACK_CHANNEL, message: "Build Unstable: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
         }
         always {
+            emailext (
+                to: 'tchantchoisaac1998@gmail.com',
+                subject: "Pipeline Finished: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                body: "Pipeline finished.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}\nResult: ${currentBuild.result}"
+            )
             slackSend(channel: SLACK_CHANNEL, message: "Pipeline Finished: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
         }
     }
