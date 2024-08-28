@@ -19,7 +19,7 @@ pipeline {
                     docker.image(DOCKER_IMAGE).inside('--user root') {
                         sh '''
                             # Mettre à jour les packages et installer les outils nécessaires
-                            apt-get update && apt-get install -y unzip git curl php-cli
+                            apt-get update && apt-get install -y unzip git curl php8.2-cli
 
                             # Installer Composer dans /usr/local/bin si nécessaire
                             if ! [ -x "/usr/local/bin/composer" ]; then
