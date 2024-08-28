@@ -16,9 +16,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    # Ajouter le dépôt PHP si nécessaire
-                    apt-get update || true
-                    apt-get install -y lsb-release apt-transport-https ca-certificates
+                    # Ajouter le dépôt PHP
                     echo "deb https://packages.sury.org/php/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/php.list
                     curl -fsSL https://packages.sury.org/php/apt.gpg | apt-key add -
 
