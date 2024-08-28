@@ -52,14 +52,34 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+    
+    success {
             emailext (
-                subject: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n\n${env.BUILD_URL}",
-                to: "tchantchoisaac1998@gmail.com"
+                to: 'tchantchoisaac1998@gmail.com',
+                subject: "Build Success: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                body: "The build was successful.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}"
             )
         }
-    }
+        failure {
+            emailext (
+                to: 'tchantchoisaac1998@gmail.com',
+                subject: "Build Failure: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                body: "The build failed.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}"
+            )
+        }
+        unstable {
+            emailext (
+                to: 'tchantchoisaac1998@gmail.com',
+                subject: "Build Unstable: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                body: "The build is unstable.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}"
+            )
+        }
+        always {
+            emailext (
+                to: 'tchantchoisaac1998@gmail.com',
+                subject: "Pipeline Finished: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                body: "Pipeline finished.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}\nResult: ${currentBuild.result}"
+            )
+        }
 }
+
