@@ -19,7 +19,7 @@ pipeline {
                     docker.image(DOCKER_IMAGE).inside('--user root') {
                         sh '''
                             # Mettre à jour les packages et installer les outils nécessaires
-                            apt-get update && apt-get install -y unzip git curl
+                            apt-get update && apt-get install -y unzip git curl php-cli
 
                             # Installer Composer dans /usr/local/bin si nécessaire
                             if ! [ -x "/usr/local/bin/composer" ]; then
@@ -27,10 +27,10 @@ pipeline {
                             fi
 
                             # Vérification de l'installation de Composer
-                            /usr/local/bin/composer --version
+                            php /usr/local/bin/composer --version
 
                             # Installer les dépendances Composer
-                            /usr/local/bin/composer install
+                            php /usr/local/bin/composer install
                         '''
                     }
                 }
@@ -41,7 +41,7 @@ pipeline {
             steps {
                 script {
                     docker.image(DOCKER_IMAGE).inside('--user root') {
-                        sh '/usr/local/bin/composer exec phpunit'
+                        sh 'php /usr/local/bin/composer exec phpunit'
                     }
                 }
             }
