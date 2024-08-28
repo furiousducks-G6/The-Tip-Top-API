@@ -1,9 +1,9 @@
 pipeline {
-    agent {
-        docker {
-            image 'php:8.2-cli' // Utiliser l'image PHP 8.2 CLI comme base
-            args '--user root' // Exécuter les commandes en tant que root
-        }
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'php:8.2-cli'
+        WORKDIR = '/app'
     }
 
     stages {
@@ -15,35 +15,46 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    # Ajouter le dépôt PHP
-                    echo "deb https://packages.sury.org/php/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/php.list
-                    curl -fsSL https://packages.sury.org/php/apt.gpg | apt-key add -
+                script {
+                    docker.image(DOCKER_IMAGE).inside('--user root -w /workspace') {
+                        sh '''
+                            # Mettre à jour les packages et installer les outils nécessaires
+                            apt-get update
+                            apt-get install -y unzip git curl php8.2-cli
 
-                    # Mettre à jour et installer les outils nécessaires
-                    apt-get update
-                    apt-get install -y unzip git curl php8.2-cli
+                            # Installer Composer dans /usr/local/bin si nécessaire
+                            if ! [ -x "/usr/local/bin/composer" ]; then
+                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+                            fi
 
-                    # Installer Composer dans /usr/local/bin si nécessaire
-                    if ! [ -x "/usr/local/bin/composer" ]; then
-                        curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-                    fi
+                            # Vérification de l'installation de Composer
+                            php /usr/local/bin/composer --version
 
-                    # Vérification de l'installation de Composer
-                    php /usr/local/bin/composer --version
+                            # Vérifier la présence de composer.json
+                            ls -la /workspace
 
-                    # Installer les dépendances Composer
-                    php /usr/local/bin/composer install
-                '''
+                            # Installer les dépendances Composer
+                            php /usr/local/bin/composer install
+                        '''
+                    }
+                }
             }
         }
 
-        // Stage de Déploiement ou autres étapes
-        stage('Deploy') {
+        stage('Run Tests') {
             steps {
-                sh 'echo "Déploiement en cours..."' // Exemple de commande de déploiement
+                script {
+                    docker.image(DOCKER_IMAGE).inside('--user root -w /workspace') {
+                        sh '''
+                            # Exécuter PHPUnit
+                            /usr/local/bin/composer exec phpunit
+                        '''
+                    }
+                }
             }
         }
+
+        // Autres étapes ici
     }
 
     post {
@@ -52,7 +63,7 @@ pipeline {
             emailext (
                 subject: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: "Pipeline ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n\n${env.BUILD_URL}",
-                to: "tchantchoisaac1998@gmail.com"
+                to: "tchantchoisaac1997@gmail.com"
             )
         }
     }
