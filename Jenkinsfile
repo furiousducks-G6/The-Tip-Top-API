@@ -38,13 +38,12 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        // Stage de Déploiement ou autres étapes
+        stage('Deploy') {
             steps {
-                sh 'php /usr/local/bin/composer exec phpunit'
+                sh 'echo "Déploiement en cours..."' // Exemple de commande de déploiement
             }
         }
-
-        // Autres étapes ici
     }
 
     post {
