@@ -1,9 +1,9 @@
 pipeline {
-    agent any
-
-    environment {
-        DOCKER_IMAGE = 'php:8.2-cli'
-        WORKDIR = '/app'
+    agent {
+        docker {
+            image 'php:8.2-cli' // Utiliser l'image PHP 8.2 CLI comme base
+            args '--user root' // Exécuter les commandes en tant que root
+        }
     }
 
     stages {
@@ -15,41 +15,34 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                script {
-                    docker.image(DOCKER_IMAGE).inside('--user root') {
-                        sh '''
-                            # Mettre à jour les sources et ajouter le dépôt PHP
-                            apt-get update
-                            apt-get install -y lsb-release apt-transport-https ca-certificates
-                            echo "deb https://packages.sury.org/php/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/php.list
-                            curl -fsSL https://packages.sury.org/php/apt.gpg | apt-key add -
+                sh '''
+                    # Ajouter le dépôt PHP si nécessaire
+                    apt-get update || true
+                    apt-get install -y lsb-release apt-transport-https ca-certificates
+                    echo "deb https://packages.sury.org/php/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/php.list
+                    curl -fsSL https://packages.sury.org/php/apt.gpg | apt-key add -
 
-                            # Installer les outils nécessaires
-                            apt-get update && apt-get install -y unzip git curl php8.2-cli
+                    # Mettre à jour et installer les outils nécessaires
+                    apt-get update
+                    apt-get install -y unzip git curl php8.2-cli
 
-                            # Installer Composer dans /usr/local/bin si nécessaire
-                            if ! [ -x "/usr/local/bin/composer" ]; then
-                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-                            fi
+                    # Installer Composer dans /usr/local/bin si nécessaire
+                    if ! [ -x "/usr/local/bin/composer" ]; then
+                        curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+                    fi
 
-                            # Vérification de l'installation de Composer
-                            php /usr/local/bin/composer --version
+                    # Vérification de l'installation de Composer
+                    php /usr/local/bin/composer --version
 
-                            # Installer les dépendances Composer
-                            php /usr/local/bin/composer install
-                        '''
-                    }
-                }
+                    # Installer les dépendances Composer
+                    php /usr/local/bin/composer install
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                script {
-                    docker.image(DOCKER_IMAGE).inside('--user root') {
-                        sh 'php /usr/local/bin/composer exec phpunit'
-                    }
-                }
+                sh 'php /usr/local/bin/composer exec phpunit'
             }
         }
 
