@@ -4,6 +4,9 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'php:8.2-cli'
         WORKDIR = '/app'
+        SLACK_CHANNEL = '#general' // Remplacez par le canal Slack souhaité
+        SLACK_CREDENTIALS_ID = 'slacknotification' // ID de vos informations d'identification Slack configurées dans Jenkins
+
     }
 
     stages {
@@ -80,6 +83,21 @@ pipeline {
                 subject: "Pipeline Finished: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
                 body: "Pipeline finished.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}\nResult: ${currentBuild.result}"
             )
+        }
+    }
+
+    post {
+        success {
+            slackSend(channel: SLACK_CHANNEL, message: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
+        }
+        failure {
+            slackSend(channel: SLACK_CHANNEL, message: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
+        }
+        unstable {
+            slackSend(channel: SLACK_CHANNEL, message: "Build Unstable: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
+        }
+        always {
+            slackSend(channel: SLACK_CHANNEL, message: "Pipeline Finished: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
         }
     }
 }
