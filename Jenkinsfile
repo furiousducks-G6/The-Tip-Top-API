@@ -18,7 +18,13 @@ pipeline {
                 script {
                     docker.image(DOCKER_IMAGE).inside('--user root') {
                         sh '''
-                            # Mettre à jour les packages et installer les outils nécessaires
+                            # Mettre à jour les sources et ajouter le dépôt PHP
+                            apt-get update
+                            apt-get install -y lsb-release apt-transport-https ca-certificates
+                            echo "deb https://packages.sury.org/php/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/php.list
+                            curl -fsSL https://packages.sury.org/php/apt.gpg | apt-key add -
+
+                            # Installer les outils nécessaires
                             apt-get update && apt-get install -y unzip git curl php8.2-cli
 
                             # Installer Composer dans /usr/local/bin si nécessaire
