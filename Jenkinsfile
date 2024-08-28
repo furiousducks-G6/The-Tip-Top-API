@@ -52,8 +52,8 @@ pipeline {
         }
     }
 
-    
-    success {
+    post {
+        success {
             emailext (
                 to: 'tchantchoisaac1998@gmail.com',
                 subject: "Build Success: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
@@ -81,5 +81,5 @@ pipeline {
                 body: "Pipeline finished.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}\nResult: ${currentBuild.result}"
             )
         }
+    }
 }
-
