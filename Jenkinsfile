@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'php:8.2-cli'
         WORKDIR = '/app'
-        SLACK_CHANNEL = '#general' // Remplacez par le canal Slack souhaité
+        SLACK_CHANNEL = '#social' // Remplacez par le canal Slack souhaité
         SLACK_CREDENTIALS_ID = 'slacknotification' // ID de vos informations d'identification Slack configurées dans Jenkins
     }
 
