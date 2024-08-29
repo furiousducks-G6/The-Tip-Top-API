@@ -44,7 +44,7 @@ class RegisterController extends AbstractController
         if($email_exist)
         {   
             return new JsonResponse(
-                ['message' => 'Cet  utilisaeur  existe deja, Voulez vous vous connecter ? SVP'],
+                ['message' => 'this  utilisaeur  existe deja, Voulez vous vous connecter ? SVP'],
                 Response::HTTP_BAD_REQUEST
             );
             
