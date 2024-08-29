@@ -6,6 +6,7 @@ pipeline {
         WORKDIR = '/app'
         SLACK_CHANNEL = '#social' // Remplacez par le canal Slack souhaité
         SLACK_CREDENTIALS_ID = 'slack' // ID de vos informations d'identification Slack configurées dans Jenkins
+        PATH_TO_SYMFONY = '/path/to/symfony' // Définit correctement cette variable
     }
 
     stages {
@@ -14,15 +15,7 @@ pipeline {
                 checkout scm
             }
         }
-         stage('Deploy to Dev') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                sh "docker run --rm -v \$(pwd):/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy:dev"
-            }
-        }
-    }
+
         stage('Install Dependencies') {
             steps {
                 script {
@@ -55,6 +48,19 @@ pipeline {
                             # Exécuter PHPUnit via Composer
                             ./vendor/bin/phpunit
                         '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Dev') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                script {
+                    docker.image(DOCKER_IMAGE).inside('--user root -w ' + WORKDIR) {
+                        sh "docker run --rm -v ${WORKDIR}:/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy:dev"
                     }
                 }
             }
