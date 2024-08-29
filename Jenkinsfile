@@ -14,7 +14,15 @@ pipeline {
                 checkout scm
             }
         }
-
+         stage('Deploy to Dev') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                sh "docker run --rm -v \$(pwd):/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy:dev"
+            }
+        }
+    }
         stage('Install Dependencies') {
             steps {
                 script {
