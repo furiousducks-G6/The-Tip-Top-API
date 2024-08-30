@@ -16,7 +16,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # 4. Définir le répertoire de travail
 WORKDIR /app
 
-# 5. Copier le code source dans le conteneur
+# 5. Copier le code source et les fichiers nécessaires dans le conteneur
 COPY . /app
 
 # 6. Installer les dépendances PHP via Composer
