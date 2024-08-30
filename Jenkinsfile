@@ -4,8 +4,10 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'php:8.2-cli'
         WORKDIR = '/app'
-        SLACK_CHANNEL = '#social' // Remplacez par le canal Slack souhaité
+        SLACK_CHANNEL = '#social' // Remplace par le canal Slack souhaité
         SLACK_CREDENTIALS_ID = 'slack' // ID de vos informations d'identification Slack configurées dans Jenkins
+        IMAGE_NAME = 'monutilisateur/monapp' // Nom d'image Docker
+        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials-id' // ID de vos informations d'identification Docker Hub
         PATH_TO_SYMFONY = '/path/to/symfony' // Définit correctement cette variable
     }
 
@@ -13,6 +15,15 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def imageTag = 'latest-dev'
+                    docker.build("${IMAGE_NAME}:${imageTag}", "-f Dockerfile .")
+                }
             }
         }
 
@@ -59,13 +70,12 @@ pipeline {
             }
             steps {
                 script {
-                    docker.image(DOCKER_IMAGE).inside('--user root -w ' + WORKDIR) {
-                        sh "docker run --rm -v ${WORKDIR}:/app -w /app ${env.DOCKER_IMAGE} ${env.PATH_TO_SYMFONY} deploy:dev"
-                    }
+                    sh "docker run --rm -v ${WORKDIR}:/app -w /app ${IMAGE_NAME}:latest-dev ${PATH_TO_SYMFONY} deploy:dev"
                 }
             }
         }
-         stage('Push to Docker Hub') {
+
+        stage('Push to Docker Hub') {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
@@ -75,6 +85,7 @@ pipeline {
                     }
                 }
             }
+        }
     }
 
     post {
