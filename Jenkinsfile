@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'php:8.2-cli'
         WORKDIR = '/app'
-        SLACK_CHANNEL = '#social' // Remplace par le canal Slack souhaité
+        SLACK_CHANNEL = '#social' // Remplace par le canale Slack souhaité
         SLACK_CREDENTIALS_ID = 'slack' // ID de vos informations d'identification Slack configurées dans Jenkins
         IMAGE_NAME = 'furiousducks/the-tip-top-api' // Nom d'image Docker
         DOCKER_CREDENTIALS_ID = 'docker-hub' // ID de vos informations d'identification Docker Hub
