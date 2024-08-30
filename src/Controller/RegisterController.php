@@ -121,7 +121,7 @@ public function getMe(): Response
         if (isset($data['phone'])) {
             $user->setPhone($data['phone']);
         }
-        // Ajoutez ici d'autres champs que vous souhaitez mettre à jour
+        // Ajoutez ici d'autre champs que vous souhaitez mettre à jour
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
