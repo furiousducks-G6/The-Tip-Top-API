@@ -7,7 +7,7 @@ pipeline {
         SLACK_CHANNEL = '#social' // Remplace par le canal Slack souhaité
         SLACK_CREDENTIALS_ID = 'slack' // ID de vos informations d'identification Slack configurées dans Jenkins
         IMAGE_NAME = 'monutilisateur/monapp' // Nom d'image Docker
-        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials' // ID de vos informations d'identification Docker Hub
+        DOCKER_CREDENTIALS_ID = 'docker-hub' // ID de vos informations d'identification Docker Hub
         PATH_TO_SYMFONY = '/path/to/symfony' // Définit correctement cette variable
     }
 
