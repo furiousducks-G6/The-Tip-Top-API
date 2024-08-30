@@ -65,6 +65,16 @@ pipeline {
                 }
             }
         }
+         stage('Push to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                        def imageTag = 'latest-dev'
+                        docker.image("${IMAGE_NAME}:${imageTag}").push(imageTag)
+                        docker.image("${IMAGE_NAME}:${imageTag}").push('latest')
+                    }
+                }
+            }
     }
 
     post {
