@@ -126,7 +126,7 @@ public function getMe(): Response
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return new JsonResponse(['message' => 'User updated successfully'], Response::HTTP_OK);
+        return new JsonResponse(['message' => 'User updatede successfully'], Response::HTTP_OK);
     }
 
 }
