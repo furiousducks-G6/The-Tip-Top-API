@@ -1,31 +1,29 @@
 # 1. Utiliser une image de base PHP avec Composer préinstallé
 FROM php:8.2-cli
 
-# 2. Installer les dépendances système nécessaires (si besoin)
+# 2. Installer les dépendances système nécessaires
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    libzip-dev \
+    libicu-dev \
+    libpq-dev \
+    && docker-php-ext-install zip intl pdo pdo_pgsql
 
-# 3. Définir le répertoire de travail
+# 3. Installer Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# 4. Définir le répertoire de travail
 WORKDIR /app
 
-# 4. Copier le code source dans le conteneur
+# 5. Copier le code source dans le conteneur
 COPY . /app
 
-# 5. Installer les dépendances PHP via Composer
-# Assurer que Composer est déjà installé dans l'image de base
-RUN if [ ! -f "/usr/local/bin/composer" ]; then \
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer; \
-    fi
+# 6. Installer les dépendances PHP via Composer
+RUN composer install --no-dev --optimize-autoloader
 
-# Installation des dépendances sans les packages de développement
-# et en désactivant l'exécution des scripts Composer pour éviter les erreurs liées aux bundles dev
-RUN composer install --no-dev --optimize-autoloader --no-scripts
-
-# 6. Exposer le port 8000 (ou celui utilisé par ton serveur)
+# 7. Exposer le port 8000
 EXPOSE 8000
 
-# 7. Commande par défaut (peut être modifiée selon ton application)
+# 8. Commande par défaut pour démarrer le serveur
 CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
