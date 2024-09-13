@@ -32,15 +32,17 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-            steps {
+            steps {  
                 script {
-                    docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
-                        sh '''
-                            php /usr/local/bin/composer install --no-interaction --prefer-dist
-                            ls -la vendor/bin/
-                        '''
-                    }
-                }
+              docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
+                sh '''
+                    php /usr/local/bin/composer diagnose
+                    php /usr/local/bin/composer clear-cache
+                    php /usr/local/bin/composer install --no-interaction --prefer-dist
+                    ls -la vendor/bin/
+                '''
+            }
+        }
             }
         }
 
