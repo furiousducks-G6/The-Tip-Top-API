@@ -3,13 +3,13 @@ pipeline {
 
     environment {
         COMPOSE_FILE = '.docker/docker-compose.yml'
-        DOCKER_IMAGE = 'the-tip-top-api-php:latest'  // Mettez à jour avec l'image construite
-        WORKDIR = '/app'
+        DOCKER_IMAGE = 'the-tip-top-api-php:latest'
+        WORKDIR = '/var/www/symfony'
         SLACK_CHANNEL = '#social'
         SLACK_CREDENTIALS_ID = 'slack'
         IMAGE_NAME = 'furiousducks6/the-tip-top-api'
         DOCKER_CREDENTIALS_ID = 'docker-hub'
-        PATH_TO_SYMFONY = '/path/to/symfony'
+        PATH_TO_SYMFONY = '/var/www/symfony'
     }
 
     stages {
@@ -24,8 +24,8 @@ pipeline {
                 script {
                     def imageTag = 'latest-dev'
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                        sh "docker-compose -f ${COMPOSE_FILE} up -d --build"
-                        sh "docker-compose -f ${COMPOSE_FILE} ps"
+                        sh "docker compose -f ${COMPOSE_FILE} up -d --build"
+                        sh "docker compose -f ${COMPOSE_FILE} ps"
                     }
                 }
             }
@@ -33,16 +33,14 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                 script {
-                    // Installer les dépendances dans le conteneur PHP en cours d'exécution
-                     docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
+                script {
+                    docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
                         sh '''
                             php /usr/local/bin/composer install --no-interaction --prefer-dist
-                            # Vérifier l'installation de PHPUnit
                             ls -la vendor/bin/
                         '''
+                    }
                 }
-
             }
         }
 
@@ -50,7 +48,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker-compose -f ${COMPOSE_FILE} run --rm php sh -c "vendor/bin/phpunit --version && vendor/bin/phpunit"
+                        docker compose -f ${COMPOSE_FILE} run --rm php sh -c "vendor/bin/phpunit --version && vendor/bin/phpunit"
                     '''
                 }
             }
