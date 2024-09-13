@@ -23,13 +23,13 @@ services:
         depends_on:
             - db
         links:
-          - db
-        environment:
-            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-            MYSQL_DATABASE: ${MYSQL_DATABASE}
-            MYSQL_USER: ${MYSQL_USER}
-            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-            DATABASE_URL: "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/ ${MYSQL_DATABASE}"
+            - db
+       # environment:
+       #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+       #     MYSQL_DATABASE: ${MYSQL_DATABASE}
+       #    MYSQL_USER: ${MYSQL_USER}
+        #   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        #    DATABASE_URL: "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/ ${MYSQL_DATABASE}"
         volumes:
             - ../:/var/www/symfony:cached
             - symfony_app_var:/var/www/symfony/var
