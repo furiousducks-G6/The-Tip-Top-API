@@ -25,7 +25,7 @@ pipeline {
                     def imageTag = 'latest-dev'
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
                         sh "docker-compose -f ${COMPOSE_FILE} build"
-                        sh "docker-compose -f ${COMPOSE_FILE} ps"
+                        sh "docker-compose -f ${COMPOSE_FILE} ps" // Vérifiez l'état des services
                     }
                 }
             }
@@ -34,7 +34,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    docker.image(DOCKER_IMAGE).inside('--user root -w ' + WORKDIR) {
+                    docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
                         sh '''
                             apt-get update
                             apt-get install -y unzip zip git curl
