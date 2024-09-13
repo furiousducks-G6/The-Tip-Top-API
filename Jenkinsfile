@@ -34,14 +34,15 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
-                        sh '''
-                            php /usr/local/bin/composer install --no-interaction --prefer-dist
-                            # Vérifier l'installation de PHPUnit
+                    // Installer les dépendances dans le conteneur PHP en cours d'exécution
+                    sh '''
+                        docker-compose -f ${COMPOSE_FILE} exec -T php sh -c "
+                            php /usr/local/bin/composer install --no-interaction --prefer-dist &&
                             ls -la vendor/bin/
-                        '''
-                    }
+                        "
+                    '''
                 }
+
             }
         }
 
