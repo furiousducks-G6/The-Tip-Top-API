@@ -25,7 +25,7 @@ pipeline {
                     def imageTag = 'latest-dev'
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
                         sh "docker-compose -f ${COMPOSE_FILE} build"
-                        sh "docker-compose -f ${COMPOSE_FILE} ps" // Vérifiez l'état des services
+                        sh "docker-compose -f ${COMPOSE_FILE} ps"
                     }
                 }
             }
@@ -44,6 +44,8 @@ pipeline {
                             php /usr/local/bin/composer --version
                             php /usr/local/bin/composer install --no-interaction --prefer-dist
                             php /usr/local/bin/composer show
+                            # Vérifier l'installation de PHPUnit
+                            ls -la vendor/bin/
                         '''
                     }
                 }
