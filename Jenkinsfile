@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         COMPOSE_FILE = '.docker/docker-compose.yml'
-        DOCKER_IMAGE = 'the-tip-top-api-php:latest'  // Mettez à jour avec l'image construite
+        DOCKER_IMAGE = 'the-tip-top-api'  // Mettez à jour avec l'image construite
         WORKDIR = '/app'
         SLACK_CHANNEL = '#social'
         SLACK_CREDENTIALS_ID = 'slack'
