@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE = '.docker/docker-compose.yml' // Chemin vers le fichier docker-compose.yml
+        COMPOSE_FILE = '.docker/docker-compose.yml'
         DOCKER_IMAGE = 'php:8.2-cli'
         WORKDIR = '/app'
-        SLACK_CHANNEL = '#social' // Remplace par le canal Slack souhaité
-        SLACK_CREDENTIALS_ID = 'slack' // ID de vos informations d'identification Slack configurées dans Jenkins
-        IMAGE_NAME = 'furiousducks6/the-tip-top-api' // Nom d'image Docker
-        DOCKER_CREDENTIALS_ID = 'docker-hub' // ID de vos informations d'identification Docker Hub
-        PATH_TO_SYMFONY = '/path/to/symfony' // Définit correctement cette variable
+        SLACK_CHANNEL = '#social'
+        SLACK_CREDENTIALS_ID = 'slack'
+        IMAGE_NAME = 'furiousducks6/the-tip-top-api'
+        DOCKER_CREDENTIALS_ID = 'docker-hub'
+        PATH_TO_SYMFONY = '/path/to/symfony'
     }
 
     stages {
@@ -25,23 +25,40 @@ pipeline {
                     def imageTag = 'latest-dev'
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
                         sh "docker-compose -f ${COMPOSE_FILE} build"
-                        sh "docker-compose -f ${COMPOSE_FILE} ps" // Vérifiez l'état des services après la construction
+                        sh "docker-compose -f ${COMPOSE_FILE} ps"
                     }
                 }
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    docker.image(DOCKER_IMAGE).inside('--user root -w ' + WORKDIR) {
+                        sh '''
+                            apt-get update
+                            apt-get install -y unzip zip git curl
+                            if ! [ -x "/usr/local/bin/composer" ]; then
+                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+                            fi
+                            php /usr/local/bin/composer --version
+                            php /usr/local/bin/composer install --no-interaction --prefer-dist
+                            php /usr/local/bin/composer show
+                        '''
+                    }
+                }
+            }
+        }
 
         stage('Run Tests') {
             steps {
                 script {
                     sh '''
-                        docker-compose -f ${COMPOSE_FILE} run --rm php sh -c "./vendor/bin/phpunit"
+                        docker-compose -f ${COMPOSE_FILE} run --rm php sh -c "vendor/bin/phpunit --version && vendor/bin/phpunit"
                     '''
                 }
             }
         }
-        
 
         stage('Deploy to Dev') {
             when {
