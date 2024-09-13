@@ -38,7 +38,7 @@ pipeline {
                         sh '''
                             # Installer les outils nécessaires
                             apt-get update
-                            apt-get install -y unzip zip git
+                            apt-get install -y unzip zip git curl
 
                             # Installer Composer dans /usr/local/bin si nécessaire
                             if ! [ -x "/usr/local/bin/composer" ]; then
@@ -75,7 +75,9 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker run --rm -v ${WORKDIR}:/app -w /app ${IMAGE_NAME}:latest-dev ${PATH_TO_SYMFONY} deploy:dev"
+                    sh """
+                        docker run --rm -v ${WORKDIR}:/app -w /app ${IMAGE_NAME}:latest-dev ${PATH_TO_SYMFONY} deploy:dev
+                    """
                 }
             }
         }
