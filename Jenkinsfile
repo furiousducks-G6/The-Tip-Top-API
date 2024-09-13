@@ -48,7 +48,7 @@ pipeline {
             sh '''
                 docker compose -f ${COMPOSE_FILE} exec php sh -c "cat /var/www/symfony/composer.json"
                 docker compose -f ${COMPOSE_FILE} exec php sh -c "ls -la /var/www/symfony/vendor/bin/"
-                docker compose -f ${COMPOSE_FILE} exec php sh -c "php /usr/local/bin/composer diagnose"
+         
             '''
         }
     }
