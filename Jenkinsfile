@@ -24,7 +24,7 @@ pipeline {
                 script {
                     def imageTag = 'latest-dev'
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                        sh "docker-compose -f ${COMPOSE_FILE} up --build"
+                        sh "docker-compose -f ${COMPOSE_FILE} up -d --build"
                         sh "docker-compose -f ${COMPOSE_FILE} ps"
                     }
                 }
