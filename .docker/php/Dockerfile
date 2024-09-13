@@ -20,8 +20,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libonig-dev \
     libxslt1-dev \
-    acl \
-    && echo 'alias sf="php bin/console"' >> ~/.bashrc
+    acl
 
 # Configurer et installer les extensions PHP
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype \

@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         COMPOSE_FILE = '.docker/docker-compose.yml'
-        DOCKER_IMAGE = 'php:8.2-cli'
+        DOCKER_IMAGE = 'your-image-name'  // Mettez à jour avec l'image construite
         WORKDIR = '/app'
         SLACK_CHANNEL = '#social'
         SLACK_CREDENTIALS_ID = 'slack'
@@ -36,14 +36,7 @@ pipeline {
                 script {
                     docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
                         sh '''
-                            apt-get update
-                            apt-get install -y unzip zip git curl
-                            if ! [ -x "/usr/local/bin/composer" ]; then
-                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-                            fi
-                            php /usr/local/bin/composer --version
                             php /usr/local/bin/composer install --no-interaction --prefer-dist
-                            php /usr/local/bin/composer show
                             # Vérifier l'installation de PHPUnit
                             ls -la vendor/bin/
                         '''
