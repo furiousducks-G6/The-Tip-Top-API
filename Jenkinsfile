@@ -31,33 +31,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    docker.image(DOCKER_IMAGE).inside('--user root -w ' + WORKDIR) {
-                        sh '''
-                            # Installer les outils nécessaires
-                            apt-get update
-                            apt-get install -y unzip zip git curl
-
-                            # Installer Composer dans /usr/local/bin si nécessaire
-                            if ! [ -x "/usr/local/bin/composer" ]; then
-                                curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-                            fi
-
-                            # Vérification de l'installation de Composer
-                            php /usr/local/bin/composer --version
-
-                            # Installer les dépendances Composer
-                            php /usr/local/bin/composer install --no-interaction --prefer-dist
-
-                            # Vérification des dépendances installées
-                            php /usr/local/bin/composer show
-                        '''
-                    }
-                }
-            }
-        }
 
         stage('Run Tests') {
             steps {
