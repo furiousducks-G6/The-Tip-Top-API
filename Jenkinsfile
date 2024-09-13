@@ -33,10 +33,11 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                script {
+                 script {
                     // Installer les dépendances dans le conteneur PHP en cours d'exécution
                     sh '''
                         docker-compose -f ${COMPOSE_FILE} exec -T php sh -c "
+                            cd ${WORKDIR} &&
                             php /usr/local/bin/composer install --no-interaction --prefer-dist &&
                             ls -la vendor/bin/
                         "
