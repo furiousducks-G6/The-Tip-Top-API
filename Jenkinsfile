@@ -36,11 +36,12 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker-compose -f ${COMPOSE_FILE} run --rm app sh -c "./vendor/bin/phpunit"
+                        docker-compose -f ${COMPOSE_FILE} run --rm php sh -c "./vendor/bin/phpunit"
                     '''
                 }
             }
         }
+        
 
         stage('Deploy to Dev') {
             when {
