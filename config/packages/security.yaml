@@ -44,7 +44,7 @@ security:
         # - { path: ^/api, roles: ROLE_USER }
         - { path: ^/api/user/lot, roles: ROLE_USER }
         #Routes pour les CAISSIER  
-        - { path: ^/api/ticket/validation, roles: ROLE_CAISSIER}
+       # - { path: ^/api/ticket/validation, roles: ROLE_CAISSIER}
        
 
 

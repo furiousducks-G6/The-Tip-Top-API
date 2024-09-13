@@ -16,13 +16,15 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource (
 
     normalizationContext: ['groups' => ['read']],
     denormalizationContext: ['groups' => ['write']],
-
+   
 )]
+
 /**
  * Secured resource.
  */

@@ -107,3 +107,4 @@ class Lot
         return $this;
     }
 }
+

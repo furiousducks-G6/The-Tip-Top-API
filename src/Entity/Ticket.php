@@ -5,9 +5,30 @@ namespace App\Entity;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use App\Controller\TicketController;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
-#[ApiResource]
+#[ApiResource ( operations: [
+        new Get(),
+        new Post(),
+        new Put(),
+        new Delete(),
+        new Patch(),
+        new Get(
+            uriTemplate: 'api/ticket/validation',
+            controller: TicketController::class,
+            name: 'app_ticket_validation'
+        )
+    ]
+)]
 class Ticket
 {
     #[ORM\Id]

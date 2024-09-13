@@ -28,7 +28,7 @@ class GenerateTicketsCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $numberOfTickets = 100; // Nombre total de tickets à générer
+        $numberOfTickets = 500000; // Nombre total de tickets à générer
 
         // Récupération des lots depuis la base de données
         $lots = $this->entityManager->getRepository(Lot::class)->findAll();

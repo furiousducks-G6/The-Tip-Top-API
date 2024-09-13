@@ -58,3 +58,4 @@ class CreateLotsCommand extends Command
         return Command::SUCCESS;
     }
 }
+
