@@ -35,5 +35,7 @@ RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && echo ${TIMEZONE} >
 # Installer Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+RUN git clone https://github.com/username/repository.git /var/www/symfony/repository
+
 # Définir le répertoire de travail
 WORKDIR /var/www/symfony
