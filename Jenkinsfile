@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        COMPOSE_FILE = '.docker/docker-compose.yml' // Chemin vers le fichier docker-compose.yml
         DOCKER_IMAGE = 'php:8.2-cli'
         WORKDIR = '/app'
         SLACK_CHANNEL = '#social' // Remplace par le canale Slack souhaité
@@ -18,15 +19,16 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+         stage('Build Docker Image') {
             steps {
                 script {
                     def imageTag = 'latest-dev'
-                    docker.build("${IMAGE_NAME}:${imageTag}", "-f Dockerfile .")
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                        sh "docker-compose -f ${COMPOSE_FILE} build"
+                    }
                 }
             }
         }
-
         stage('Install Dependencies') {
             steps {
                 script {
@@ -48,18 +50,12 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+         stage('Run Tests') {
             steps {
                 script {
-                    docker.image(DOCKER_IMAGE).inside('--user root -w ' + WORKDIR) {
-                        sh '''
-                            # Vérifier la présence de composer.json
-                            ls -la
-
-                            # Exécuter PHPUnit via Composer
-                            ./vendor/bin/phpunit
-                        '''
-                    }
+                    sh '''
+                        docker-compose -f ${COMPOSE_FILE} run --rm app sh -c "./vendor/bin/phpunit"
+                    '''
                 }
             }
         }
