@@ -52,7 +52,7 @@ class TicketController extends AbstractController
     }
 
     
-    /* route pour recuperer les lots  d'un utilisateur */
+    /* route pour recuperer les lots  d'un utilisateur   */
      #[Route('api/user/lot', name: 'user_prizes', methods:['get'])]
     public function getUserPrizes(): JsonResponse
     {
