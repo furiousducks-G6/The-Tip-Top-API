@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libpng-dev \
     libjpeg-dev \
-    libicu-dev  \
+    libicu-dev \
     libonig-dev \
     libxslt1-dev \
     acl \
