@@ -141,7 +141,7 @@ pipeline {
                     sshagent(credentials: [env.VPS_CREDENTIALS_ID]) {
                         sh """
                         ssh -o StrictHostKeyChecking=no ${env.VPS_USER}@${env.VPS_HOST} << EOF
-                            docker-compose -f ${env.DOCKER_COMPOSE_REMOTE_PATH}/docker-compose.preprod.yml ps
+                            docker-compose -f ${env.DOCKER_COMPOSE_REMOTE_PATH}/docker-compose.yml ps
 
                             curl -f ${env.APP_URL} || (echo "L'application ne répond pas!" && exit 1)
                         EOF
