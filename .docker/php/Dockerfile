@@ -21,10 +21,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxslt1-dev \
     acl \
-    software-properties-common \
-    p7zip-full \
-    && add-apt-repository ppa:git-core/ppa \
-    && apt-get update && apt-get install -y git
+    p7zip-full 
 
 
 
