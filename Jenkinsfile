@@ -30,7 +30,7 @@ pipeline {
                 }
             }
         }
-
+/*
          stage('Install Dependencies') {
     steps {
         script {
@@ -52,7 +52,30 @@ pipeline {
             '''
         }
     }
+}*/
+           
+           stage('Install Dependencies') {
+    steps {
+        script {
+            // Installer les dépendances dans le conteneur PHP en cours d'exécution
+            docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
+                sh '''
+                    php /usr/local/bin/composer diagnose
+                    php /usr/local/bin/composer clear-cache
+                    php /usr/local/bin/composer install --no-interaction --prefer-dist
+                    ls -la vendor/bin/
+                '''
+            }
+
+            // Vérification de la présence de composer.json et du contenu de vendor/bin
+            sh '''
+                docker compose -f "${COMPOSE_FILE}" exec php sh -c "cat /var/www/symfony/composer.json"
+                docker compose -f "${COMPOSE_FILE}" exec php sh -c "ls -la /var/www/symfony/vendor/bin/"
+            '''
+        }
+    }
 }
+
 
         
 
