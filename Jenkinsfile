@@ -60,7 +60,9 @@ pipeline {
         stage('Run Composer Install') {
             steps {
                 script {
-                    sh "docker-compose -f ${env.COMPOSE_FILE} exec -T ${env.BACKEND_SERVICE} composer install"
+                   // sh "docker-compose -f ${env.COMPOSE_FILE} exec -T ${env.BACKEND_SERVICE} composer install"
+                    sh"docker-compose -f .docker/docker-compose.yml exec -T php composer install
+"
                 }
             }
         }
