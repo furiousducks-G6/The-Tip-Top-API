@@ -63,7 +63,8 @@ pipeline {
                     php /usr/local/bin/composer diagnose
                     php /usr/local/bin/composer clear-cache
                     php /usr/local/bin/composer install --no-interaction --prefer-dist
-                    ls -la vendor/bin/
+                    ls -la vendor/ || echo "Vendor directory not found"
+                    ls -la vendor/bin/ || echo "Vendor/bin directory not found"
                 '''
             }
 
