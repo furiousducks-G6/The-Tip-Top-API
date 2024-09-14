@@ -10,7 +10,7 @@ pipeline {
         GIT_REPO_URL = 'https://gitlab.com/furious-ducks1/backend.git'
         GIT_BRANCH = 'preprod'
         APP_URL = 'http://92.113.27.65:81'
-        COMPOSE_FILE = '.docker/docker-compose.preprod.yml'
+        COMPOSE_FILE = '.docker/docker-compose.yml'
         BACKEND_SERVICE = 'php'
         DB_SERVICE = 'mysql'
         MYSQL_ROOT_PASSWORD = 'hello'
