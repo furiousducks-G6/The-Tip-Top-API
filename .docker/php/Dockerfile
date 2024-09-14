@@ -3,6 +3,7 @@ ARG TIMEZONE
 
 # Copier le fichier php.ini pour la configuration
 COPY php.ini /usr/local/etc/php/conf.d/docker-php-config.ini
+
 # Installer les dépendances nécessaires
 RUN apt-get update && apt-get install -y \
     gnupg \
@@ -24,6 +25,11 @@ RUN apt-get update && apt-get install -y \
     p7zip-full \
     && add-apt-repository ppa:git-core/ppa \
     && apt-get update && apt-get install -y git
+
+
+
+
+# Ceci mettra à jour Git à la version la plus récente disponible
 
 # Configurer et installer les extensions PHP
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype \
