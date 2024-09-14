@@ -2,14 +2,21 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE = '.docker/docker-compose.yml'
-        DOCKER_IMAGE = 'the-tip-top-api-php:latest'
-        WORKDIR = '/var/www/symfony'
-        SLACK_CHANNEL = '#social'
-        SLACK_CREDENTIALS_ID = 'slack'
-        IMAGE_NAME = 'furiousducks6/the-tip-top-api'
-        DOCKER_CREDENTIALS_ID = 'docker-hub'
-        PATH_TO_SYMFONY = '/var/www/symfony'
+        //VPS_CREDENTIALS_ID = '6R2hV:H:C#T2stpcKK:g'
+        //VPS_HOST = '92.113.27.65'
+        VPS_USER = 'root'
+        APP_REMOTE_PATH = '/srv/app/preprod'
+        DOCKER_COMPOSE_REMOTE_PATH = '/srv/app/preprod/backend/.docker'
+        GIT_REPO_URL = 'https://gitlab.com/furious-ducks1/backend.git'
+        GIT_BRANCH = 'preprod'
+        APP_URL = 'http://92.113.27.65:81'
+        COMPOSE_FILE = '.docker/docker-compose.preprod.yml'
+        BACKEND_SERVICE = 'php'
+        DB_SERVICE = 'mysql'
+        MYSQL_ROOT_PASSWORD = 'hello'
+        MYSQL_DATABASE = 'app_db'
+        MYSQL_USER = 'app_user'
+        MYSQL_PASSWORD = 'hello'
     }
 
     stages {
@@ -19,98 +26,126 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Cleanup Old Containers') {
             steps {
                 script {
-                    def imageTag = 'latest-dev'
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                        sh "docker compose -f ${COMPOSE_FILE} up -d --build"
-                        sh "docker compose -f ${COMPOSE_FILE} ps"
+                    sh "docker-compose -f ${env.COMPOSE_FILE} down --volumes --remove-orphans || true"
+                }
+            }
+        }
+
+        stage('Build and Start Services Locally') {
+            steps {
+                script {
+                    withEnv([
+                        "MYSQL_ROOT_PASSWORD=${env.MYSQL_ROOT_PASSWORD}",
+                        "MYSQL_DATABASE=${env.MYSQL_DATABASE}",
+                        "MYSQL_USER=${env.MYSQL_USER}",
+                        "MYSQL_PASSWORD=${env.MYSQL_PASSWORD}"
+                    ]) {
+                        sh "docker-compose -f ${env.COMPOSE_FILE} up -d --build"
                     }
                 }
             }
         }
-/*
-         stage('Install Dependencies') {
-    steps {
-        script {
-            // Installer les dépendances dans le conteneur PHP en cours d'exécution
-            docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
-                sh '''
-                    php /usr/local/bin/composer diagnose || true
-                    php /usr/local/bin/composer clear-cache
-                    php /usr/local/bin/composer install --no-interaction --prefer-dist || true
-                    ls -la vendor/bin/
-                '''
-            }
 
-            // Vérification de la présence de composer.json et du contenu de vendor/bin
-            sh '''
-                docker compose -f ${COMPOSE_FILE} exec php sh -c "cat /var/www/symfony/composer.json"
-                docker compose -f ${COMPOSE_FILE} exec php sh -c "ls -la /var/www/symfony/vendor/bin/"
-         
-            '''
-        }
-    }
-}*/
-           
-           stage('Install Dependencies') {
-    steps {
-        script {
-            // Installer les dépendances dans le conteneur PHP en cours d'exécution
-            docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
-                sh '''
-                    php /usr/local/bin/composer diagnose
-                    php /usr/local/bin/composer clear-cache
-                    php /usr/local/bin/composer install --no-interaction --prefer-dist
-                    ls -la vendor/ || echo "Vendor directory not found"
-                    ls -la vendor/bin/ || echo "Vendor/bin directory not found"
-                '''
-            }
-
-            // Vérification de la présence de composer.json et du contenu de vendor/bin
-            sh '''
-                docker compose -f "${COMPOSE_FILE}" exec php sh -c "cat /var/www/symfony/composer.json"
-                docker compose -f "${COMPOSE_FILE}" exec php sh -c "ls -la /var/www/symfony/vendor/bin/"
-            '''
-        }
-    }
-}
-
-
-        
-
-        stage('Run Tests') {
+        stage('Verify File Permissions') {
             steps {
                 script {
-                    sh '''
-                        docker compose -f ${COMPOSE_FILE} run --rm php sh -c "vendor/bin/phpunit --version && vendor/bin/phpunit"
-                    '''
+                    sh "docker-compose -f ${env.COMPOSE_FILE} exec -T ${env.BACKEND_SERVICE} chmod +x bin/console || true"
                 }
             }
         }
 
-
-        stage('Deploy to Dev') {
-            when {
-                branch 'develop'
-            }
+        stage('Run Composer Install') {
             steps {
                 script {
-                    sh """
-                        docker run --rm -v ${WORKDIR}:/app -w /app ${IMAGE_NAME}:latest-dev ${PATH_TO_SYMFONY} deploy:dev
-                    """
+                    sh "docker-compose -f ${env.COMPOSE_FILE} exec -T ${env.BACKEND_SERVICE} composer install"
                 }
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Run Database Migrations') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                        def imageTag = 'latest-dev'
-                        docker.image("${IMAGE_NAME}:${imageTag}").push(imageTag)
-                        docker.image("${IMAGE_NAME}:${imageTag}").push('latest')
+                    withEnv([
+                        "MYSQL_ROOT_PASSWORD=${env.MYSQL_ROOT_PASSWORD}",
+                        "MYSQL_DATABASE=${env.MYSQL_DATABASE}",
+                        "MYSQL_USER=${env.MYSQL_USER}",
+                        "MYSQL_PASSWORD=${env.MYSQL_PASSWORD}"
+                    ]) {
+                        sh """
+                        docker-compose -f ${env.COMPOSE_FILE} exec -T ${env.BACKEND_SERVICE} bin/console doctrine:database:create --if-not-exists
+                        docker-compose -f ${env.COMPOSE_FILE} exec -T ${env.BACKEND_SERVICE} bin/console doctrine:schema:update --force
+                        """
+                    }
+                }
+            }
+        }
+
+//         stage('Run Tests') {
+//             steps {
+//                 script {
+//                     sh """
+//                     # Créer la base de données de test si elle n'existe pas
+//                     docker-compose -f ${env.COMPOSE_FILE} exec -T db bash -c '
+//                         mysql -u root -phello -e "CREATE DATABASE IF NOT EXISTS app_db_test;"
+//                     '
+//
+//                     # Exécuter les migrations ou les schémas si nécessaire
+//                     docker-compose -f ${env.COMPOSE_FILE} exec -T php bash -c '
+//                         vendor/bin/console doctrine:migrations:migrate --env=test --no-interaction
+//                     '
+//                     """
+//
+//                     sh """
+//                     docker-compose -f ${env.COMPOSE_FILE} exec -T php bash -c '
+//                         export APP_ENV=test &&
+//                         vendor/bin/phpunit
+//                     '
+//                     """
+//                 }
+//             }
+//         }
+
+        stage('Deploy to VPS') {
+            steps {
+                script {
+                    sshagent(credentials: [env.VPS_CREDENTIALS_ID]) {
+                        sh """
+                        ssh -o StrictHostKeyChecking=no ${env.VPS_USER}@${env.VPS_HOST} << EOF
+                            cd ${env.APP_REMOTE_PATH}
+                            git fetch origin
+                            git checkout ${env.GIT_BRANCH}
+                            git pull origin ${env.GIT_BRANCH}
+
+                            cd ${env.DOCKER_COMPOSE_REMOTE_PATH}
+                            docker-compose -f docker-compose.preprod.yml down --volumes --remove-orphans
+                            docker-compose -f docker-compose.preprod.yml up -d --build
+
+                            docker-compose -f docker-compose.preprod.yml exec -T ${env.BACKEND_SERVICE} composer install
+
+                            docker-compose -f docker-compose.preprod.yml exec -T ${env.BACKEND_SERVICE} php bin/console doctrine:migrations:migrate --no-interaction
+
+                            docker system prune -f
+                        EOF
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    sshagent(credentials: [env.VPS_CREDENTIALS_ID]) {
+                        sh """
+                        ssh -o StrictHostKeyChecking=no ${env.VPS_USER}@${env.VPS_HOST} << EOF
+                            docker-compose -f ${env.DOCKER_COMPOSE_REMOTE_PATH}/docker-compose.preprod.yml ps
+
+                            curl -f ${env.APP_URL} || (echo "L'application ne répond pas!" && exit 1)
+                        EOF
+                        """
                     }
                 }
             }
@@ -118,37 +153,17 @@ pipeline {
     }
 
     post {
+        always {
+            script {
+                sh "docker-compose -f ${env.COMPOSE_FILE} down || true"
+                cleanWs()
+            }
+        }
         success {
-            emailext (
-                to: 'tchantchoisaac1998@gmail.com',
-                subject: "Build Success: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                body: "The build was successful.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}"
-            )
-            slackSend(channel: SLACK_CHANNEL, message: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
+            echo "Déploiement de la préprod réussi !"
         }
         failure {
-            emailext (
-                to: 'tchantchoisaac1998@gmail.com',
-                subject: "Build Failure: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                body: "The build failed.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}"
-            )
-            slackSend(channel: SLACK_CHANNEL, message: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
-        }
-        unstable {
-            emailext (
-                to: 'tchantchoisaac1998@gmail.com',
-                subject: "Build Unstable: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                body: "The build is unstable.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}"
-            )
-            slackSend(channel: SLACK_CHANNEL, message: "Build Unstable: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
-        }
-        always {
-            emailext (
-                to: 'tchantchoisaac1998@gmail.com',
-                subject: "Pipeline Finished: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                body: "Pipeline finished.\n\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nBuild URL: ${env.BUILD_URL}\nResult: ${currentBuild.result}"
-            )
-            slackSend(channel: SLACK_CHANNEL, message: "Pipeline Finished: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}")
+            echo "Échec du déploiement de la préprod"
         }
     }
 }
