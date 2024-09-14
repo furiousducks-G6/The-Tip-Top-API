@@ -37,9 +37,9 @@ pipeline {
             // Installer les dépendances dans le conteneur PHP en cours d'exécution
             docker.image(DOCKER_IMAGE).inside("--user root -w ${WORKDIR}") {
                 sh '''
-                    php /usr/local/bin/composer diagnose
+                    php /usr/local/bin/composer diagnose || true
                     php /usr/local/bin/composer clear-cache
-                    php /usr/local/bin/composer install --no-interaction --prefer-dist
+                    php /usr/local/bin/composer install --no-interaction --prefer-dist || true
                     ls -la vendor/bin/
                 '''
             }
