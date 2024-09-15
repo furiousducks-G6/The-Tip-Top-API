@@ -40,4 +40,16 @@ class TicketRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    
+      /**
+     * Find a ticket by its code.
+     */
+    public function findTicketByCode(string $code): ?Ticket
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.code = :code')
+            ->setParameter('code', $code)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

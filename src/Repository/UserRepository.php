@@ -15,6 +15,7 @@ class UserRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, User::class);
     }
+    
 
     //    /**
     //     * @return User[] Returns an array of User objects
@@ -40,4 +41,14 @@ class UserRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+   public function findUsersWithTickets(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.tikets', 't')  // Utilisez 'Tikets' si c'est le nom correct
+            ->groupBy('u.id')
+            ->getQuery()
+            ->getResult();
+    }
+    
 }
