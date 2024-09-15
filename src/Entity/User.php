@@ -14,39 +14,47 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-
+use Symfony\Component\Serializer\Annotation\Groups;
+use App\Controller\TicketController;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ApiResource (
+#[ApiResource(operations: [
+    new Get(),
+    new Post(),
+    new Put(),
+    new Delete(),
+    new Patch(),
+    new Get(
+        uriTemplate: 'api/ticket/validation',
+        controller: TicketController::class,
+        name: 'app_ticket_validation'
+    ),
+    new GetCollection()
+    
+    ],normalizationContext:[ 'groups'=>['read:collection']])]
 
-    normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']],
-   
-)]
-
-/**
- * Secured resource.
- */
-/*
-#[Get (security:"is_granted('ROLE_ADMIN')")]
-#[Put(security: "is_granted('ROLE_ADMIN') or object.owner == user")]
-#[GetCollection]
-#[Post(security: "is_granted('ROLE_ADMIN')")]*/
 class User implements UserInterface, PasswordAuthenticatedUserInterface /*, /*TwoFactorInterface*/
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['read:collection'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $firstName = null;
+    #[Groups(['read:collection'])]
 
+    private ?string $firstName = null;
+   
     #[ORM\Column(length: 255)]
+    #[Groups(['read:collection'])]
     private ?string $Email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['read:collection'])]
     private ?string $phone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -55,9 +63,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface /*, /*Tw
     private ?string $googleAuthenticatorSecret;
 
     #[ORM\Column]
+    #[Groups(['read:collection'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['read:collection'])]
     private array $roles = [];
 
     /**
@@ -70,6 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface /*, /*Tw
     private ?string $google_id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['read:collection'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -78,11 +89,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface /*, /*Tw
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $passwordResetExpiresAt = null;
 
+    #[ORM\Column(length: 255)]
+    #[Groups(['read:collection'])]
+    private ?string $Rle = null;
+
         public function __construct() {
             $this->createdAt = new \DateTimeImmutable();
             $this->roles[]="ROLE_USER ";
             $this->tikets = new ArrayCollection();
-        }
+	        $this->Rle="U";
+ 
+       }
     public function getId(): ?int
     {
         return $this->id;
@@ -249,6 +266,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface /*, /*Tw
     public function setPasswordResetExpiresAt(?\DateTimeInterface $passwordResetExpiresAt): static
     {
         $this->passwordResetExpiresAt = $passwordResetExpiresAt;
+
+        return $this;
+    }
+
+    public function getRle(): ?string
+    {
+        return $this->Rle;
+    }
+
+    public function setRle(string $Rle): static
+    {
+        $this->Rle = $Rle;
 
         return $this;
     }

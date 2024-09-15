@@ -13,6 +13,8 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
@@ -26,28 +28,40 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
             uriTemplate: 'api/ticket/validation',
             controller: TicketController::class,
             name: 'app_ticket_validation'
-        )
-    ]
+        ),
+        new Get(
+            uriTemplate: ' /api/ticket/search',
+            controller: TicketController::class,
+            name: 'search_ticket'),
+        new GetCollection()
+        
+        ],
+        normalizationContext: ['groups' => ['read:collection']]
+    
 )]
 class Ticket
 {
     #[ORM\Id]
+    #[Groups(['read:collection'])]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read:collection'])]
     private ?string $code = null;
-
+    #[Groups(['read:collection'])]
     #[ORM\Column]
+    
     private ?bool $isClaimed = null;
-
     #[ORM\ManyToOne(inversedBy: 'tickets')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['read:collection'])]
     private ?Lot $lot = null;
 
     #[ORM\ManyToOne(inversedBy: 'tikets')]
+    #[Groups(['read:collection'])]
     private ?User $user = null;
 
     public function getId(): ?int
