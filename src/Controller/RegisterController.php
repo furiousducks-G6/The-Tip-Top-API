@@ -86,7 +86,7 @@ public function getMe(): Response
         'phone'=>$user->getPhone(),
         'id'=>$user->getId(),
         'Rle'=>$user->getRle()
-        
+
     ];
 
     return new JsonResponse($userData);

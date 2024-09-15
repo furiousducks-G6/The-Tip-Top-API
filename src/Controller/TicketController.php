@@ -12,19 +12,19 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
-class TicketController extends AbstractController
 
+class TicketController extends AbstractController
 {
     private $doctrine;
     private $entityManager;
 
-    public function __construct( EntityManagerInterface $entityManager ,ManagerRegistry $doctrine , private TicketRepository $ticketRepository  , private Security $security)
+    public function __construct(EntityManagerInterface $entityManager, ManagerRegistry $doctrine, private TicketRepository $ticketRepository, private Security $security)
     {
         $this->doctrine = $doctrine;
         $this->entityManager = $entityManager;
     }
     
-    #[Route('/tikets', name: 'tikets',)]
+    #[Route('/tikets', name: 'tikets')]
     public function index(): Response
     {
         // Récupérer tous les tickets
@@ -51,9 +51,8 @@ class TicketController extends AbstractController
         ]);
     }
 
-    
-    /* route pour recuperer les lots  d'un utilisateur   */
-     #[Route('api/user/lot', name: 'user_prizes', methods:['get'])]
+    /* Route pour récupérer les lots d'un utilisateur */
+    #[Route('api/user/lot', name: 'user_prizes', methods:['get'])]
     public function getUserPrizes(): JsonResponse
     {
         $user = $this->security->getUser();
@@ -79,13 +78,10 @@ class TicketController extends AbstractController
         return new JsonResponse($prizes);
     }
 
- 
     #[Route('api/ticket/validation', name: 'app_ticket_validation')]
     public function validateTicket(Request $request, TicketRepository $ticketRepository): JsonResponse
     {
         $code = $request->request->get('code');
-
-
 
         if (!$code) {
             return new JsonResponse(['message' => 'Code is required'], 400);
@@ -114,8 +110,6 @@ class TicketController extends AbstractController
         ]);
     }
 
-
-    
     #[Route('/api/ticket/search', name: 'search_ticket', methods: ['GET'])]
     public function searchTicket(Request $request): JsonResponse
     {
@@ -137,9 +131,9 @@ class TicketController extends AbstractController
         return new JsonResponse([
             'id' => $ticket->getId(),
             'code' => $ticket->getCode(),
-            'is_clamed'=>$ticket->isClaimed(),
-            'lot'=>$ticket->getLot(),
-            'user'=>$ticket->getUser(),
+            'is_claimed' => $ticket->isClaimed(),
+            'lot' => $ticket->getLot(),
+            'user' => $ticket->getUser(),
         ]);
     }
 }
