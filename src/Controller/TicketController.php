@@ -113,4 +113,33 @@ class TicketController extends AbstractController
             'value' => $ticket->getLot()->getValue(),
         ]);
     }
+
+
+    
+    #[Route('/api/ticket/search', name: 'search_ticket', methods: ['GET'])]
+    public function searchTicket(Request $request): JsonResponse
+    {
+        // Récupérer le code du ticket depuis la requête (par exemple dans l'URL ?code=XXX)
+        $code = $request->query->get('code');
+
+        if (!$code) {
+            return new JsonResponse(['error' => 'Ticket code is required'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        // Chercher le ticket par son code
+        $ticket = $this->ticketRepository->findTicketByCode($code);
+
+        if (!$ticket) {
+            return new JsonResponse(['error' => 'Ticket not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        // Si le ticket est trouvé, retourner ses informations
+        return new JsonResponse([
+            'id' => $ticket->getId(),
+            'code' => $ticket->getCode(),
+            'is_clamed'=>$ticket->isClaimed(),
+            'lot'=>$ticket->getLot(),
+            'user'=>$ticket->getUser(),
+        ]);
+    }
 }

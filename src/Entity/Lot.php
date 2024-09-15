@@ -7,8 +7,39 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\Delete;
+use App\Controller\TicketController;
+
 
 #[ORM\Entity(repositoryClass: LotRepository::class)]
+#[ApiResource ( operations: [
+        new Get(),
+        new Get(
+            uriTemplate: 'api/user/lot',
+            controller: TicketController::class,
+            name: 'user_prizes'
+        ),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+        new Patch(),
+       
+        
+        ],
+        normalizationContext: ['groups' => ['read:collection']]
+    
+)]
+
+
 class Lot
 {
     #[ORM\Id]
