@@ -85,6 +85,7 @@ public function getMe(): Response
         'roles' => $user->getRoles(),
         'phone'=>$user->getPhone(),
         'id'=>$user->getId(),
+        'Rle'=>$user->getRle()
         
     ];
 
