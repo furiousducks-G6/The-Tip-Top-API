@@ -20,6 +20,8 @@ services:
             context: ./php
             args:
                 TIMEZONE: ${TIMEZONE}
+            
+            
         
        # environment:
        #     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
