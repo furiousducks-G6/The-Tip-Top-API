@@ -8,10 +8,12 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "api-platform/core": "^3.3",
+        "deployer/deployer": "^7.4",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.12",
         "doctrine/doctrine-migrations-bundle": "^3.3",
-        "doctrine/orm": "^3.2",
+        "doctrine/orm": "^2.12",
+        "lexik/jwt-authentication-bundle": "^2.14",
         "nelmio/cors-bundle": "^2.5",
         "phpdocumentor/reflection-docblock": "^5.4",
         "phpstan/phpdoc-parser": "^1.29",
@@ -21,10 +23,12 @@
         "symfony/expression-language": "7.1.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.1.*",
+        "symfony/mailer": "7.1.*",
         "symfony/property-access": "7.1.*",
         "symfony/property-info": "7.1.*",
         "symfony/runtime": "7.1.*",
         "symfony/security-bundle": "7.1.*",
+        "symfony/security-core": "7.1.*",
         "symfony/serializer": "7.1.*",
         "symfony/twig-bundle": "7.1.*",
         "symfony/validator": "7.1.*",
@@ -80,6 +84,8 @@
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.2"
+        "phpunit/phpunit": "^11.3",
+        "symfony/maker-bundle": "^1.36" 
+        
     }
 }
