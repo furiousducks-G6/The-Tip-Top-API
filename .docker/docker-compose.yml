@@ -17,7 +17,7 @@ services:
             - symfony_app
     php:
         build:
-            context: ./php
+            context: ./../
             args:
                 TIMEZONE: ${TIMEZONE}
             
@@ -39,7 +39,7 @@ services:
         build:
             context: ./nginx
         volumes:
-            - ../:/var/www/symfony:cached
+      #     - ../:/var/www/symfony:cached
             - symfony_app_var:/var/www/symfony/var
             - symfony_app_vendor:/var/www/symfony/vendor
         ports:
