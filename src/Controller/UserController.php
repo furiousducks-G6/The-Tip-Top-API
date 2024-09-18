@@ -19,7 +19,7 @@ class UserController extends AbstractController
     #[Route('/api/contest/participants', name: 'contest_participants', methods: ['GET'])]
     public function getContestParticipants(): JsonResponse
     {
-        // Récupérer les utilisateurs ayant au moins un ticket (participants)
+        // Rï¿½cupï¿½rer les utilisateurs ayant au moins un ticket (participants)
         $participants = $this->userRepository->findUsersWithTickets();
 
         $data = [];
@@ -27,6 +27,7 @@ class UserController extends AbstractController
             $data[] = [
                 'id' => $user->getId(),
                 'name' => $user->getName(),
+                'firstname'=>$user->getFirstName(),
                 'tickets' => count($user->getTikets()),
             ];
         }
