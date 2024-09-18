@@ -136,4 +136,32 @@ class TicketController extends AbstractController
             'user' => $ticket->getUser(),
         ]);
     }
+    
+    #[Route('/api/ticket/all', name: 'all_ticket', methods: ['GET'])]
+  
+    public function getAllTickets(Request $request): JsonResponse
+    {
+        $page = (int) $request->query->get('page', 1);
+        $limit = (int) $request->query->get('limit', 30);
+        $offset = ($page - 1) * $limit;
+
+        $tickets = $this->ticketRepository->findBy([], [], $limit, $offset);
+
+        $ticketData = array_map(function($ticket) {
+            return [
+                'id' => $ticket->getId(),
+                'code' => $ticket->getCode(),
+                'is_claimed' => $ticket->isClaimed(),
+                'lot' => $ticket->getLot(),
+                'user' => $ticket->getUser(),
+            ];
+        }, $tickets);
+
+        return new JsonResponse([
+            'data' => $ticketData,
+            'page' => $page,
+            'limit' => $limit,
+            'total' => count($ticketData) // Total count could be fetched differently if needed
+        ]);
+    }
 }

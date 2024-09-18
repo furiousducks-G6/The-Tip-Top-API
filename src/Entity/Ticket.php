@@ -33,6 +33,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
             uriTemplate: ' /api/ticket/search',
             controller: TicketController::class,
             name: 'search_ticket'),
+        
+        new Get(
+            uriTemplate: ' /api/ticket/all',
+            controller: TicketController::class,
+            name: 'all_ticket'),
         new GetCollection()
         
         ],
